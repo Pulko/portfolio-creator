@@ -6,6 +6,12 @@ import { Octokit } from '@octokit/rest';
 export async function POST(request: Request) {
   try {
     const session = await getServerSession();
+    console.log('Create route session:', {
+      hasUser: !!session?.user,
+      hasToken: !!session?.accessToken,
+      user: session?.user
+    });
+
     if (!session?.user || !session?.accessToken) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

@@ -12,14 +12,17 @@ const handler = NextAuth({
     async jwt({ token, account }) {
       if (account) {
         token.accessToken = account.access_token;
+        console.log('JWT token set with access token');
       }
       return token;
     },
     async session({ session, token }) {
       session.accessToken = (token as { accessToken?: string }).accessToken;
+      console.log('Session created with access token:', !!session.accessToken);
       return session;
     },
   },
+  debug: process.env.NODE_ENV === 'development',
 });
 
 export { handler as GET, handler as POST }; 
