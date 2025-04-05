@@ -1,106 +1,151 @@
 import { Octokit } from '@octokit/rest';
-import { generatePortfolioTemplate } from './portfolio-template';
+import { getToken } from 'next-auth/jwt';
+import { NextApiRequest } from 'next';
 
-export async function createPortfolioRepository(
-  accessToken: string,
-  username: string,
-  portfolioData: any
-) {
-  const octokit = new Octokit({ auth: accessToken });
+interface Project {
+  name: string;
+  description: string;
+  url: string;
+}
+
+interface PortfolioData {
+  name: string;
+  bio: string;
+  location: string;
+  website: string;
+  twitter: string;
+  github: string;
+  linkedin: string;
+  projects: Project[];
+}
+
+export async function getAuthenticatedOctokit(req: NextApiRequest) {
+  const token = await getToken({ req });
+  if (!token?.accessToken) {
+    throw new Error('No access token found');
+  }
+  return new Octokit({ auth: token.accessToken });
+}
+
+export async function createPortfolioRepo(
+  octokit: Octokit,
+  data: PortfolioData
+): Promise<string> {
+  const { name, bio, location, website, twitter, github, linkedin, projects } = data;
 
   // Create a new repository
   const repo = await octokit.repos.createForAuthenticatedUser({
-    name: `${username}-portfolio`,
-    description: 'Personal portfolio website',
+    name: `${name.toLowerCase().replace(/\s+/g, '-')}-portfolio`,
+    description: 'My personal portfolio',
     private: false,
     auto_init: true,
   });
 
-  // Get the template files
-  const template = generatePortfolioTemplate(portfolioData);
+  const repoName = repo.data.name;
+  const owner = repo.data.owner.login;
 
-  // Create files in the repository
-  for (const [path, content] of Object.entries(template)) {
-    await octokit.repos.createOrUpdateFileContents({
-      owner: username,
-      repo: `${username}-portfolio`,
-      path,
-      message: `Add ${path}`,
-      content: Buffer.from(content).toString('base64'),
-    });
-  }
+  // Create README.md
+  await octokit.repos.createOrUpdateFileContents({
+    owner,
+    repo: repoName,
+    path: 'README.md',
+    message: 'Initial commit',
+    content: Buffer.from(
+      `# ${name}'s Portfolio\n\n${bio}\n\n## Projects\n\n${projects
+        .map(
+          (project) =>
+            `### ${project.name}\n\n${project.description}\n\n[View Project](${project.url})`
+        )
+        .join('\n\n')}`
+    ).toString('base64'),
+  });
 
-  return repo.data;
+  // Create index.html
+  const htmlContent = generatePortfolioPage(data);
+  await octokit.repos.createOrUpdateFileContents({
+    owner,
+    repo: repoName,
+    path: 'index.html',
+    message: 'Add portfolio page',
+    content: Buffer.from(htmlContent).toString('base64'),
+  });
+
+  return `https://github.com/${owner}/${repoName}`;
 }
 
-function generatePortfolioPage(portfolioData: any) {
+function generatePortfolioPage(data: PortfolioData): string {
+  const { name, bio, location, website, twitter, github, linkedin, projects } = data;
+
   return `
-import React from 'react';
-
-export default function Portfolio() {
-  return (
-    <div className="min-h-screen bg-gray-100">
-      <div className="max-w-4xl mx-auto px-4 py-12">
-        <header className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-2">${portfolioData.name}</h1>
-          <p className="text-xl text-gray-600">${portfolioData.bio}</p>
-          <p className="text-gray-500">${portfolioData.location}</p>
-        </header>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-2xl font-semibold mb-4">About Me</h2>
-            <p className="text-gray-700">${portfolioData.bio}</p>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-2xl font-semibold mb-4">Contact</h2>
-            <div className="space-y-2">
-              ${generateSocialLinks(portfolioData)}
-            </div>
-          </div>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>${name}'s Portfolio</title>
+      <style>
+        body {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+          line-height: 1.6;
+          margin: 0;
+          padding: 2rem;
+          color: #333;
+        }
+        .container {
+          max-width: 800px;
+          margin: 0 auto;
+        }
+        h1 {
+          color: #2d3748;
+        }
+        .social-links {
+          margin: 2rem 0;
+        }
+        .social-links a {
+          margin-right: 1rem;
+          color: #4a5568;
+          text-decoration: none;
+        }
+        .projects {
+          margin-top: 2rem;
+        }
+        .project {
+          margin-bottom: 2rem;
+          padding: 1rem;
+          border: 1px solid #e2e8f0;
+          border-radius: 0.5rem;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <h1>${name}</h1>
+        <p>${bio}</p>
+        ${location ? `<p>📍 ${location}</p>` : ''}
+        
+        <div class="social-links">
+          ${website ? `<a href="${website}" target="_blank">🌐 Website</a>` : ''}
+          ${twitter ? `<a href="${twitter}" target="_blank">🐦 Twitter</a>` : ''}
+          ${github ? `<a href="${github}" target="_blank">💻 GitHub</a>` : ''}
+          ${linkedin ? `<a href="${linkedin}" target="_blank">🔗 LinkedIn</a>` : ''}
         </div>
 
-        <div className="mt-12">
-          <h2 className="text-2xl font-semibold mb-6">Projects</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            ${generateProjects(portfolioData.projects)}
-          </div>
+        <div class="projects">
+          <h2>Projects</h2>
+          ${projects
+            .map(
+              (project) => `
+            <div class="project">
+              <h3>${project.name}</h3>
+              <p>${project.description}</p>
+              <a href="${project.url}" target="_blank">View Project</a>
+            </div>
+          `
+            )
+            .join('')}
         </div>
       </div>
-    </div>
-  );
-}
+    </body>
+    </html>
   `;
-}
-
-function generateSocialLinks(portfolioData: any) {
-  const links = [];
-  if (portfolioData.website) {
-    links.push(`<a href="${portfolioData.website}" className="block text-blue-500 hover:underline">Website</a>`);
-  }
-  if (portfolioData.github) {
-    links.push(`<a href="https://github.com/${portfolioData.github}" className="block text-blue-500 hover:underline">GitHub</a>`);
-  }
-  if (portfolioData.twitter) {
-    links.push(`<a href="https://twitter.com/${portfolioData.twitter}" className="block text-blue-500 hover:underline">Twitter</a>`);
-  }
-  if (portfolioData.linkedin) {
-    links.push(`<a href="https://linkedin.com/in/${portfolioData.linkedin}" className="block text-blue-500 hover:underline">LinkedIn</a>`);
-  }
-  return links.join('\n');
-}
-
-function generateProjects(projects: any[]) {
-  return projects
-    .map(
-      (project) => `
-    <div className="bg-white p-6 rounded-lg shadow">
-      <h3 className="text-xl font-semibold mb-2">${project.name}</h3>
-      <p className="text-gray-600 mb-4">${project.description}</p>
-      <a href="${project.url}" className="text-blue-500 hover:underline">View Project</a>
-    </div>
-  `
-    )
-    .join('\n');
 } 

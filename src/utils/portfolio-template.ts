@@ -1,160 +1,169 @@
-export function generatePortfolioTemplate(portfolioData: any) {
-  const name = portfolioData.name || 'Portfolio';
-  const bio = portfolioData.bio || 'Welcome to my portfolio website.';
-  const location = portfolioData.location ? `Based in ${portfolioData.location}` : '';
+interface Project {
+  name: string;
+  description: string;
+  url: string;
+}
+
+interface PortfolioData {
+  name: string;
+  bio: string;
+  location: string;
+  website: string;
+  twitter: string;
+  github: string;
+  linkedin: string;
+  projects: Project[];
+}
+
+export function generatePortfolioTemplate(data: PortfolioData): Record<string, string> {
+  const { name, bio, location, website, twitter, github, linkedin, projects } = data;
 
   return {
-    'README.md': `# ${name}'s Portfolio
-
-${bio}
-
-## About
-
-This is my personal portfolio website showcasing my projects and skills.
-
-## Technologies Used
-
-- Next.js
-- React
-- Tailwind CSS
-
-## Getting Started
-
-\`\`\`bash
-npm install
-npm run dev
-\`\`\`
-
-## Deployment
-
-This portfolio is deployed on Vercel.`,
-
-    'package.json': JSON.stringify({
-      name: `${name.toLowerCase().replace(/\s+/g, '-')}-portfolio`,
-      version: '0.1.0',
-      private: true,
-      scripts: {
-        dev: 'next dev',
-        build: 'next build',
-        start: 'next start',
-      },
-      dependencies: {
-        next: 'latest',
-        react: 'latest',
-        'react-dom': 'latest',
-        'tailwindcss': 'latest',
-        'autoprefixer': 'latest',
-        'postcss': 'latest',
-      },
-    }, null, 2),
-
-    'pages/index.js': `import React from 'react';
-
-export default function Portfolio() {
-  return (
-    <div className="min-h-screen bg-gray-100">
-      <div className="max-w-4xl mx-auto px-4 py-12">
-        <header className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-2">${name}</h1>
-          <p className="text-xl text-gray-600">${bio}</p>
-          ${location ? `<p className="text-gray-500">${location}</p>` : ''}
-        </header>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-2xl font-semibold mb-4">About Me</h2>
-            <p className="text-gray-700">${bio}</p>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-2xl font-semibold mb-4">Contact</h2>
-            <div className="space-y-2">
-              ${generateSocialLinks(portfolioData)}
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-12">
-          <h2 className="text-2xl font-semibold mb-6">Projects</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            ${generateProjects(portfolioData.projects)}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}`,
-
-    'tailwind.config.js': `module.exports = {
-  content: [
-    './pages/**/*.{js,ts,jsx,tsx}',
-    './components/**/*.{js,ts,jsx,tsx}',
-  ],
-  theme: {
-    extend: {},
-  },
-  plugins: [],
-}`,
-
-    'postcss.config.js': `module.exports = {
-  plugins: {
-    tailwindcss: {},
-    autoprefixer: {},
-  },
-}`,
-
-    'styles/globals.css': `@tailwind base;
-@tailwind components;
-@tailwind utilities;`
+    'index.html': generateHTMLPage(data),
+    'README.md': generateReadme(data),
+    'styles.css': generateStyles(),
   };
 }
 
-function generateSocialLinks(portfolioData: any) {
-  const links = [];
-  
-  if (portfolioData.website) {
-    links.push(`<a href="${portfolioData.website}" className="block text-blue-500 hover:underline">Website</a>`);
-  }
-  
-  if (portfolioData.github) {
-    links.push(`<a href="https://github.com/${portfolioData.github}" className="block text-blue-500 hover:underline">GitHub</a>`);
-  }
-  
-  if (portfolioData.twitter) {
-    links.push(`<a href="https://twitter.com/${portfolioData.twitter}" className="block text-blue-500 hover:underline">Twitter</a>`);
-  }
-  
-  if (portfolioData.linkedin) {
-    links.push(`<a href="https://linkedin.com/in/${portfolioData.linkedin}" className="block text-blue-500 hover:underline">LinkedIn</a>`);
-  }
+function generateHTMLPage(data: PortfolioData): string {
+  const { name, bio, location, website, twitter, github, linkedin, projects } = data;
 
-  // If no social links are provided, show a message
-  if (links.length === 0) {
-    return '<p className="text-gray-500">No social links provided</p>';
-  }
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${name}'s Portfolio</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>${name}</h1>
+      <p class="bio">${bio}</p>
+      ${location ? `<p class="location">📍 ${location}</p>` : ''}
+    </header>
 
-  return links.join('\n');
+    <section class="social-links">
+      ${website ? `<a href="${website}" target="_blank" rel="noopener noreferrer">🌐 Website</a>` : ''}
+      ${twitter ? `<a href="${twitter}" target="_blank" rel="noopener noreferrer">🐦 Twitter</a>` : ''}
+      ${github ? `<a href="${github}" target="_blank" rel="noopener noreferrer">💻 GitHub</a>` : ''}
+      ${linkedin ? `<a href="${linkedin}" target="_blank" rel="noopener noreferrer">🔗 LinkedIn</a>` : ''}
+    </section>
+
+    <section class="projects">
+      <h2>Projects</h2>
+      ${projects.map(project => `
+        <div class="project">
+          <h3>${project.name}</h3>
+          <p>${project.description}</p>
+          <a href="${project.url}" target="_blank" rel="noopener noreferrer">View Project</a>
+        </div>
+      `).join('')}
+    </section>
+  </div>
+</body>
+</html>`;
 }
 
-function generateProjects(projects: any[]) {
-  // Filter out empty projects
-  const validProjects = projects.filter(project => 
-    project.name && project.description && project.url
-  );
+function generateReadme(data: PortfolioData): string {
+  const { name, bio, projects } = data;
 
-  if (validProjects.length === 0) {
-    return '<p className="text-gray-500">No projects added yet</p>';
-  }
+  return `# ${name}'s Portfolio
 
-  return validProjects
-    .map(
-      (project) => `
-    <div className="bg-white p-6 rounded-lg shadow">
-      <h3 className="text-xl font-semibold mb-2">${project.name}</h3>
-      <p className="text-gray-600 mb-4">${project.description}</p>
-      <a href="${project.url}" className="text-blue-500 hover:underline">View Project</a>
-    </div>
-  `
-    )
-    .join('\n');
+${bio}
+
+## Projects
+
+${projects.map(project => `
+### ${project.name}
+
+${project.description}
+
+[View Project](${project.url})
+`).join('\n\n')}`;
+}
+
+function generateStyles(): string {
+  return `body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  line-height: 1.6;
+  margin: 0;
+  padding: 2rem;
+  color: #333;
+  background-color: #f8f9fa;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+h1 {
+  color: #2d3748;
+  margin-bottom: 0.5rem;
+}
+
+.bio {
+  color: #4a5568;
+  font-size: 1.1rem;
+}
+
+.location {
+  color: #718096;
+}
+
+.social-links {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.social-links a {
+  color: #4a5568;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.social-links a:hover {
+  color: #2d3748;
+}
+
+.projects {
+  margin-top: 2rem;
+}
+
+.project {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  background-color: white;
+}
+
+.project h3 {
+  margin-top: 0;
+  color: #2d3748;
+}
+
+.project a {
+  display: inline-block;
+  margin-top: 1rem;
+  color: #4299e1;
+  text-decoration: none;
+}
+
+.project a:hover {
+  text-decoration: underline;
+}`;
 } 

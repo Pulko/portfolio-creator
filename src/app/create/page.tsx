@@ -1,8 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useSession, signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 // URL validation function
@@ -28,7 +27,6 @@ const sanitizeInput = (input: string): string => {
 
 export default function CreatePortfolio() {
   const { data: session, status } = useSession();
-  const router = useRouter();
   const [formData, setFormData] = useState({
     name: '',
     bio: '',
@@ -102,7 +100,7 @@ export default function CreatePortfolio() {
             Sign in with GitHub
           </button>
           <p className="mt-4 text-gray-400">
-            Don't have a GitHub account?{' '}
+            Don&apos;t have a GitHub account?{' '}
             <Link href="https://github.com/signup" className="text-purple-400 hover:text-purple-300">
               Create one
             </Link>
