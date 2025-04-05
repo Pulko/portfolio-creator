@@ -1,6 +1,11 @@
 import NextAuth from "next-auth";
 import GithubProvider from "next-auth/providers/github";
 
+interface Token {
+  accessToken?: string;
+  [key: string]: any;
+}
+
 const handler = NextAuth({
   providers: [
     GithubProvider({
@@ -27,36 +32,38 @@ const handler = NextAuth({
       return true;
     },
     async jwt({ token, account, user }) {
+      const typedToken = token as Token;
       console.log('🔑 JWT callback:', {
-        hasToken: !!token,
+        hasToken: !!typedToken,
         hasAccount: !!account,
         hasAccessToken: !!account?.access_token,
         scopes: account?.scope,
         tokenType: account?.token_type,
         user: user?.name,
-        currentToken: token,
+        currentToken: typedToken,
       });
       
       if (account) {
-        token.accessToken = account.access_token;
+        typedToken.accessToken = account.access_token;
         console.log('✅ Access token set in JWT:', {
-          hasToken: !!token.accessToken,
-          tokenLength: token.accessToken?.length,
+          hasToken: !!typedToken.accessToken,
+          tokenLength: typedToken.accessToken?.length,
         });
       }
-      return token;
+      return typedToken;
     },
     async session({ session, token, user }) {
+      const typedToken = token as Token;
       console.log('👤 Session callback:', {
         hasSession: !!session,
-        hasToken: !!token,
-        hasAccessToken: !!token.accessToken,
-        tokenType: typeof token.accessToken,
+        hasToken: !!typedToken,
+        hasAccessToken: !!typedToken.accessToken,
+        tokenType: typeof typedToken.accessToken,
         user: user?.name,
-        currentToken: token,
+        currentToken: typedToken,
       });
       
-      session.accessToken = (token as { accessToken?: string }).accessToken;
+      session.accessToken = typedToken.accessToken;
       console.log('🎯 Final session state:', {
         hasAccessToken: !!session.accessToken,
         user: session.user?.name,
