@@ -16,8 +16,6 @@ interface PortfolioData {
 }
 
 export function generatePortfolioTemplate(data: PortfolioData): Record<string, string> {
-  const { name, bio, location, website, twitter, github, linkedin, projects } = data;
-
   return {
     'index.html': generateHTMLPage(data),
     'README.md': generateReadme(data),

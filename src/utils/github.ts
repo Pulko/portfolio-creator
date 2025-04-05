@@ -31,7 +31,7 @@ export async function createPortfolioRepo(
   octokit: Octokit,
   data: PortfolioData
 ): Promise<string> {
-  const { name, bio, location, website, twitter, github, linkedin, projects } = data;
+  const { name } = data;
 
   // Create a new repository
   const repo = await octokit.repos.createForAuthenticatedUser({
@@ -51,7 +51,7 @@ export async function createPortfolioRepo(
     path: 'README.md',
     message: 'Initial commit',
     content: Buffer.from(
-      `# ${name}'s Portfolio\n\n${bio}\n\n## Projects\n\n${projects
+      `# ${name}'s Portfolio\n\n${data.bio}\n\n## Projects\n\n${data.projects
         .map(
           (project) =>
             `### ${project.name}\n\n${project.description}\n\n[View Project](${project.url})`
