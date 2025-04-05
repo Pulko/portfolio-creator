@@ -6,13 +6,18 @@ const handler = NextAuth({
     GithubProvider({
       clientId: process.env.GITHUB_CLIENT_ID || "",
       clientSecret: process.env.GITHUB_CLIENT_SECRET || "",
+      authorization: {
+        params: {
+          scope: 'repo',
+        },
+      },
     }),
   ],
   callbacks: {
     async jwt({ token, account }) {
       if (account) {
         token.accessToken = account.access_token;
-        console.log('JWT token set with access token');
+        console.log('JWT token set with access token:', !!token.accessToken);
       }
       return token;
     },
