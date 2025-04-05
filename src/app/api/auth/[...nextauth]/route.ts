@@ -20,7 +20,7 @@ const handler = NextAuth({
         hasAccount: !!account,
         hasAccessToken: !!account?.access_token,
         scopes: account?.scope,
-        profile: profile?.login,
+        profileName: profile?.name,
       });
       return true;
     },
