@@ -1,9 +1,9 @@
 import NextAuth from "next-auth";
 import GithubProvider from "next-auth/providers/github";
+import { JWT } from "next-auth/jwt";
 
-interface Token {
+interface ExtendedJWT extends JWT {
   accessToken?: string;
-  [key: string]: any;
 }
 
 const handler = NextAuth({
@@ -32,7 +32,7 @@ const handler = NextAuth({
       return true;
     },
     async jwt({ token, account, user }) {
-      const typedToken = token as Token;
+      const typedToken = token as ExtendedJWT;
       console.log('🔑 JWT callback:', {
         hasToken: !!typedToken,
         hasAccount: !!account,
@@ -53,7 +53,7 @@ const handler = NextAuth({
       return typedToken;
     },
     async session({ session, token, user }) {
-      const typedToken = token as Token;
+      const typedToken = token as ExtendedJWT;
       console.log('👤 Session callback:', {
         hasSession: !!session,
         hasToken: !!typedToken,
