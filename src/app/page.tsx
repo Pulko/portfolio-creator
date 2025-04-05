@@ -1,103 +1,157 @@
-import Image from "next/image";
+import Link from 'next/link';
 
 export default function Home() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <main className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-indigo-900 text-white">
+      {/* Hero Section */}
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center opacity-10"></div>
+        
+        <div className="container mx-auto px-4 relative z-10 pt-32">
+          <div className="max-w-4xl mx-auto text-center">
+            <h1 className="text-7xl font-bold mb-8 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-400">
+              Your Digital Presence, Simplified
+            </h1>
+            <p className="text-2xl text-gray-300 mb-12 max-w-2xl mx-auto">
+              Create a stunning portfolio in minutes. No coding required. Just your creativity and our powerful tools.
+            </p>
+            <Link
+              href="/create"
+              className="inline-block bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold px-16 py-6 rounded-2xl transition-all duration-200 transform hover:scale-105 text-2xl shadow-lg shadow-purple-500/30 mb-16"
+            >
+              Start Building Now →
+            </Link>
+            <div className="backdrop-blur-md bg-white/5 p-12 rounded-3xl shadow-lg border border-white/10">
+              <div className="aspect-video bg-gradient-to-br from-purple-500/10 to-indigo-500/10 rounded-2xl flex items-center justify-center">
+                <div className="text-center p-8">
+                  <h3 className="text-3xl font-bold mb-4 text-white">Your Future Portfolio</h3>
+                  <p className="text-gray-300 mb-8">A modern, responsive design that showcases your work</p>
+                  <div className="grid grid-cols-2 gap-6">
+                    <div className="bg-white/5 p-6 rounded-xl">
+                      <div className="h-2 bg-purple-400/20 rounded w-3/4 mb-2"></div>
+                      <div className="h-2 bg-purple-400/20 rounded w-1/2"></div>
+                    </div>
+                    <div className="bg-white/5 p-6 rounded-xl">
+                      <div className="h-2 bg-purple-400/20 rounded w-3/4 mb-2"></div>
+                      <div className="h-2 bg-purple-400/20 rounded w-1/2"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="pt-32">
+        <div className="container mx-auto px-4">
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-4xl font-bold text-center mb-20 text-white">Everything You Need to Shine</h2>
+            <div className="grid md:grid-cols-2 gap-12 mb-24">
+              <div className="backdrop-blur-md bg-white/5 p-10 rounded-3xl shadow-lg border border-white/10">
+                <h3 className="text-2xl font-semibold mb-6 text-white">Showcase Your Best Work</h3>
+                <p className="text-gray-300 mb-6">Highlight your projects with beautiful cards, descriptions, and live demos. Add screenshots, links, and detailed explanations to impress potential employers and clients.</p>
+                <ul className="space-y-4 text-gray-300">
+                  <li className="flex items-center">
+                    <span className="w-6 h-6 bg-purple-500/20 rounded-full flex items-center justify-center mr-3 text-purple-400">✓</span>
+                    Project descriptions and screenshots
+                  </li>
+                  <li className="flex items-center">
+                    <span className="w-6 h-6 bg-purple-500/20 rounded-full flex items-center justify-center mr-3 text-purple-400">✓</span>
+                    Live demo links and GitHub repositories
+                  </li>
+                  <li className="flex items-center">
+                    <span className="w-6 h-6 bg-purple-500/20 rounded-full flex items-center justify-center mr-3 text-purple-400">✓</span>
+                    Technology stack and key features
+                  </li>
+                </ul>
+              </div>
+              <div className="backdrop-blur-md bg-white/5 p-10 rounded-3xl shadow-lg border border-white/10">
+                <h3 className="text-2xl font-semibold mb-6 text-white">Connect with Your Audience</h3>
+                <p className="text-gray-300 mb-6">Make it easy for visitors to reach out and learn more about you. Add all your professional links and contact information in one place.</p>
+                <ul className="space-y-4 text-gray-300">
+                  <li className="flex items-center">
+                    <span className="w-6 h-6 bg-purple-500/20 rounded-full flex items-center justify-center mr-3 text-purple-400">✓</span>
+                    Social media profiles
+                  </li>
+                  <li className="flex items-center">
+                    <span className="w-6 h-6 bg-purple-500/20 rounded-full flex items-center justify-center mr-3 text-purple-400">✓</span>
+                    Professional contact information
+                  </li>
+                  <li className="flex items-center">
+                    <span className="w-6 h-6 bg-purple-500/20 rounded-full flex items-center justify-center mr-3 text-purple-400">✓</span>
+                    Custom call-to-action buttons
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Steps Section */}
+      <section className="pt-32">
+        <div className="container mx-auto px-4">
+          <h2 className="text-4xl font-bold text-center mb-20 text-white">How It Works</h2>
+          <div className="grid md:grid-cols-3 gap-12 max-w-6xl mx-auto">
+            <div className="backdrop-blur-md bg-white/5 p-10 rounded-3xl shadow-lg border border-white/10">
+              <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-full flex items-center justify-center mb-8 mx-auto">
+                <span className="text-3xl font-bold text-white">1</span>
+              </div>
+              <h3 className="text-2xl font-semibold mb-6 text-center text-white">Sign in with GitHub</h3>
+              <p className="text-gray-300 text-center">Connect your GitHub account to get started. This allows us to create your portfolio repository and handle deployments seamlessly.</p>
+            </div>
+            <div className="backdrop-blur-md bg-white/5 p-10 rounded-3xl shadow-lg border border-white/10">
+              <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-full flex items-center justify-center mb-8 mx-auto">
+                <span className="text-3xl font-bold text-white">2</span>
+              </div>
+              <h3 className="text-2xl font-semibold mb-6 text-center text-white">Fill in your details</h3>
+              <p className="text-gray-300 text-center">Tell us about yourself, your skills, and showcase your best projects. Add your social links to help others connect with you.</p>
+            </div>
+            <div className="backdrop-blur-md bg-white/5 p-10 rounded-3xl shadow-lg border border-white/10">
+              <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-full flex items-center justify-center mb-8 mx-auto">
+                <span className="text-3xl font-bold text-white">3</span>
+              </div>
+              <h3 className="text-2xl font-semibold mb-6 text-center text-white">Deploy instantly</h3>
+              <p className="text-gray-300 text-center">With one click, your portfolio goes live on Vercel. Share your professional presence with the world in seconds.</p>
+            </div>
+          </div>
+          <div className="text-center mt-20">
+            <Link
+              href="/create"
+              className="inline-block bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold px-12 py-5 rounded-xl transition-all duration-200 transform hover:scale-105 text-lg shadow-lg shadow-purple-500/30"
+            >
+              Create Your Portfolio
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Credits Section */}
+      <section className="py-16">
+        <div className="container mx-auto px-4 text-center">
+          <p className="text-gray-300 mb-6">Created with ❤️ by</p>
+          <div className="flex justify-center space-x-12">
+            <a
+              href="https://github.com/Pulko"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-purple-400 hover:text-purple-300 transition-colors text-lg"
+            >
+              @Pulko
+            </a>
+            <a
+              href="https://www.linkedin.com/in/fedor-tkachenko/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-purple-400 hover:text-purple-300 transition-colors text-lg"
+            >
+              Fedor Tkachenko
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
   );
 }
