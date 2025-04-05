@@ -14,20 +14,61 @@ const handler = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token, account }) {
+    async signIn({ user, account, profile }) {
+      console.log('SignIn callback:', {
+        user: user?.name,
+        hasAccount: !!account,
+        hasAccessToken: !!account?.access_token,
+        scopes: account?.scope,
+        profile: profile?.login,
+      });
+      return true;
+    },
+    async jwt({ token, account, user }) {
+      console.log('JWT callback:', {
+        hasToken: !!token,
+        hasAccount: !!account,
+        hasAccessToken: !!account?.access_token,
+        scopes: account?.scope,
+        tokenType: account?.token_type,
+        user: user?.name,
+      });
+      
       if (account) {
         token.accessToken = account.access_token;
-        console.log('JWT token set with access token:', !!token.accessToken);
+        console.log('Access token set in JWT:', !!token.accessToken);
       }
       return token;
     },
-    async session({ session, token }) {
+    async session({ session, token, user }) {
+      console.log('Session callback:', {
+        hasSession: !!session,
+        hasToken: !!token,
+        hasAccessToken: !!token.accessToken,
+        tokenType: typeof token.accessToken,
+        user: user?.name,
+      });
+      
       session.accessToken = (token as { accessToken?: string }).accessToken;
-      console.log('Session created with access token:', !!session.accessToken);
+      console.log('Final session state:', {
+        hasAccessToken: !!session.accessToken,
+        user: session.user?.name,
+      });
       return session;
     },
   },
-  debug: process.env.NODE_ENV === 'development',
+  debug: true, // Enable debug logs in production
+  logger: {
+    error(code, metadata) {
+      console.error('NextAuth error:', { code, metadata });
+    },
+    warn(code) {
+      console.warn('NextAuth warning:', code);
+    },
+    debug(code, metadata) {
+      console.log('NextAuth debug:', { code, metadata });
+    },
+  },
 });
 
 export { handler as GET, handler as POST }; 
