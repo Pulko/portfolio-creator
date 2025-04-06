@@ -286,6 +286,17 @@ export default function CreatePortfolio() {
               </div>
             )}
 
+            {Object.keys(validationErrors).length > 0 && (
+              <div className="backdrop-blur-md bg-red-500/10 p-4 rounded-xl border border-red-500/20">
+                <h3 className="text-red-400 font-semibold mb-2">Please fix the following errors:</h3>
+                <ul className="list-disc list-inside text-red-400">
+                  {Object.entries(validationErrors).map(([field, message]) => (
+                    <li key={field}>{message}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             <div className="backdrop-blur-md bg-white/5 p-6 rounded-3xl shadow-lg border border-white/10">
               <h2 className="text-xl font-semibold mb-4 text-white">Basic Information</h2>
               <div className="space-y-4">
