@@ -24,30 +24,34 @@ const handler = NextAuth({
         user: user?.name,
         hasAccount: !!account,
         hasAccessToken: !!account?.access_token,
+        accessToken: account?.access_token ? '***' : undefined,
         scopes: account?.scope,
         profileName: profile?.name,
         accountType: account?.type,
         tokenType: account?.token_type,
+        provider: account?.provider,
       });
       return true;
     },
     async jwt({ token, account, user }) {
       const typedToken = token as ExtendedJWT;
-      console.log('🔑 JWT callback:', {
+      console.log('🔑 JWT callback - Initial:', {
         hasToken: !!typedToken,
         hasAccount: !!account,
         hasAccessToken: !!account?.access_token,
+        accessToken: account?.access_token ? '***' : undefined,
         scopes: account?.scope,
         tokenType: account?.token_type,
         user: user?.name,
-        currentToken: typedToken,
+        currentTokenKeys: Object.keys(typedToken),
       });
       
       if (account) {
         typedToken.accessToken = account.access_token;
-        console.log('✅ Access token set in JWT:', {
-          hasToken: !!typedToken.accessToken,
+        console.log('✅ JWT callback - After setting token:', {
+          hasAccessToken: !!typedToken.accessToken,
           tokenLength: typedToken.accessToken?.length,
+          currentTokenKeys: Object.keys(typedToken),
         });
       }
       return typedToken;
@@ -60,7 +64,7 @@ const handler = NextAuth({
         hasAccessToken: !!typedToken.accessToken,
         tokenType: typeof typedToken.accessToken,
         user: user?.name,
-        currentToken: typedToken,
+        currentTokenKeys: Object.keys(typedToken),
       });
       
       session.accessToken = typedToken.accessToken;
