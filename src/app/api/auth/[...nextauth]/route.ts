@@ -89,15 +89,15 @@ export const authOptions = {
       return session;
     },
   },
-  debug: true, // Enable debug logs in production
+  debug: true,
   logger: {
-    error(code: string, metadata: any) {
+    error(code: string, metadata: Error | { [key: string]: unknown; error: Error }) {
       console.error('❌ NextAuth error:', { code, metadata });
     },
     warn(code: string) {
       console.warn('⚠️ NextAuth warning:', code);
     },
-    debug(code: string, metadata: any) {
+    debug(code: string, metadata: unknown) {
       console.log('🔍 NextAuth debug:', { code, metadata });
     },
   },
