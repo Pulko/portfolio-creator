@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useSession, signIn } from 'next-auth/react';
+import { useSession, signIn, signOut } from 'next-auth/react';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -365,12 +365,14 @@ export default function CreatePortfolio() {
           <div className="flex items-center space-x-4">
             <span className="text-gray-300">Signed in as {currentSession?.user?.name}</span>
             {!isDevMode && (
-              <button
-                onClick={() => signIn('github')}
-                className="text-purple-400 hover:text-purple-300"
-              >
-                Switch Account
-              </button>
+              <>
+                <button
+                  onClick={() => signOut({ redirect: true, callbackUrl: '/' })}
+                  className="text-red-400 hover:text-red-300"
+                >
+                  Sign Out
+                </button>
+              </>
             )}
           </div>
         </div>
@@ -898,4 +900,4 @@ export default function CreatePortfolio() {
       </div>
     </div>
   );
-} 
+}
