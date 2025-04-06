@@ -19,6 +19,36 @@ interface PortfolioData {
     linkedin?: string;
     twitter?: string;
   };
+  theme?: {
+    background?: string;
+    primary?: string;
+    text?: string;
+  };
+  experience: {
+    company: string;
+    period: string;
+    location: string;
+    description: string;
+  }[];
+}
+
+interface ThemeColors {
+  background: {
+    dark: string;
+    light: string;
+    purple: string;
+    blue: string;
+  };
+  primary: {
+    purple: string;
+    blue: string;
+    green: string;
+    red: string;
+  };
+  text: {
+    light: string;
+    dark: string;
+  };
 }
 
 export async function getAuthenticatedOctokit(req: NextApiRequest) {
@@ -122,6 +152,29 @@ ${data.socialLinks.twitter ? `- [Twitter](${data.socialLinks.twitter})` : ''}
 }
 
 function generatePortfolioPage(data: PortfolioData) {
+  const themeColors: ThemeColors = {
+    background: {
+      dark: '#1a1a1a',
+      light: '#ffffff',
+      purple: '#2d1b69',
+      blue: '#1a365d'
+    },
+    primary: {
+      purple: '#8b5cf6',
+      blue: '#3b82f6',
+      green: '#10b981',
+      red: '#ef4444'
+    },
+    text: {
+      light: '#ffffff',
+      dark: '#1a1a1a'
+    }
+  };
+
+  const bgColor = themeColors.background[data.theme?.background as keyof ThemeColors['background'] || 'dark'];
+  const primaryColor = themeColors.primary[data.theme?.primary as keyof ThemeColors['primary'] || 'purple'];
+  const textColor = themeColors.text[data.theme?.text as keyof ThemeColors['text'] || 'light'];
+
   return `
 <!DOCTYPE html>
 <html lang="en">
@@ -135,7 +188,8 @@ function generatePortfolioPage(data: PortfolioData) {
             line-height: 1.6;
             margin: 0;
             padding: 20px;
-            color: #333;
+            color: ${textColor};
+            background-color: ${bgColor};
         }
         .container {
             max-width: 800px;
@@ -146,20 +200,22 @@ function generatePortfolioPage(data: PortfolioData) {
             margin-bottom: 40px;
         }
         h1 {
-            color: #2d3748;
+            color: ${textColor};
         }
         .description {
-            color: #4a5568;
+            color: ${textColor};
             font-size: 1.2em;
+            opacity: 0.9;
         }
         .projects {
             margin-top: 40px;
         }
         .project {
-            background: #f7fafc;
+            background: ${bgColor === themeColors.background.light ? '#f7fafc' : 'rgba(255, 255, 255, 0.05)'};
             padding: 20px;
             border-radius: 8px;
             margin-bottom: 20px;
+            border: 1px solid ${bgColor === themeColors.background.light ? '#e2e8f0' : 'rgba(255, 255, 255, 0.1)'};
         }
         .technologies {
             display: flex;
@@ -168,7 +224,8 @@ function generatePortfolioPage(data: PortfolioData) {
             margin: 10px 0;
         }
         .tech-tag {
-            background: #e2e8f0;
+            background: ${primaryColor};
+            color: white;
             padding: 4px 8px;
             border-radius: 4px;
             font-size: 0.9em;
@@ -178,11 +235,12 @@ function generatePortfolioPage(data: PortfolioData) {
         }
         .links a {
             margin-right: 15px;
-            color: #3182ce;
+            color: ${primaryColor};
             text-decoration: none;
         }
         .links a:hover {
             text-decoration: underline;
+            opacity: 0.8;
         }
         .social-links {
             margin-top: 40px;
@@ -190,11 +248,40 @@ function generatePortfolioPage(data: PortfolioData) {
         }
         .social-links a {
             margin: 0 10px;
-            color: #4a5568;
+            color: ${textColor};
             text-decoration: none;
+            opacity: 0.9;
         }
         .social-links a:hover {
-            color: #3182ce;
+            color: ${primaryColor};
+            opacity: 1;
+        }
+        .experience {
+            margin-top: 40px;
+        }
+        .experience-item {
+            background: ${bgColor === themeColors.background.light ? '#f7fafc' : 'rgba(255, 255, 255, 0.05)'};
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid ${bgColor === themeColors.background.light ? '#e2e8f0' : 'rgba(255, 255, 255, 0.1)'};
+        }
+        .experience-item h3 {
+            color: ${textColor};
+            margin-top: 0;
+        }
+        .experience-item .period {
+            color: ${textColor};
+            opacity: 0.7;
+            font-size: 0.9em;
+        }
+        .experience-item .location {
+            color: ${textColor};
+            opacity: 0.7;
+            font-size: 0.9em;
+        }
+        .experience-item .description {
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -206,9 +293,10 @@ function generatePortfolioPage(data: PortfolioData) {
         </header>
 
         <div class="projects">
+            <h2>Projects</h2>
             ${data.projects.map(project => `
             <div class="project">
-                <h2>${project.name}</h2>
+                <h3>${project.name}</h3>
                 <p>${project.description}</p>
                 <div class="technologies">
                     ${project.technologies.map(tech => `
@@ -219,6 +307,18 @@ function generatePortfolioPage(data: PortfolioData) {
                     ${project.githubUrl ? `<a href="${project.githubUrl}" target="_blank">GitHub</a>` : ''}
                     ${project.liveUrl ? `<a href="${project.liveUrl}" target="_blank">Live Demo</a>` : ''}
                 </div>
+            </div>
+            `).join('')}
+        </div>
+
+        <div class="experience">
+            <h2>Work Experience</h2>
+            ${data.experience.map(exp => `
+            <div class="experience-item">
+                <h3>${exp.company}</h3>
+                <div class="period">${exp.period}</div>
+                <div class="location">${exp.location}</div>
+                <p class="description">${exp.description}</p>
             </div>
             `).join('')}
         </div>
