@@ -1,11 +1,13 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { createPortfolioRepo } from '@/utils/github';
 import { Octokit } from '@octokit/rest';
 
-export async function POST(request: Request) {
+export async function POST(req: Request) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
+    
     console.log('Create route - Initial session check:', {
       hasSession: !!session,
       hasUser: !!session?.user,
@@ -16,44 +18,50 @@ export async function POST(request: Request) {
     });
 
     if (!session?.user) {
-      console.error('Create route - No user in session');
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
     }
 
-    if (!session?.accessToken) {
-      console.error('Create route - No access token in session');
-      return NextResponse.json({ error: 'GitHub token not found. Please sign in again.' }, { status: 401 });
+    if (!session.accessToken) {
+      console.error('❌ No access token in session');
+      return NextResponse.json(
+        { error: 'GitHub token not found. Please sign in again.' },
+        { status: 401 }
+      );
     }
 
-    const data = await request.json();
+    const data = await req.json();
     console.log('Create route - Portfolio data:', {
-      name: data.name,
+      hasData: !!data,
       projectCount: data.projects?.length,
     });
 
-    const octokit = new Octokit({ auth: session.accessToken });
-    
-    // Test the token by getting user info
+    // Verify GitHub token is valid
+    const octokit = new Octokit({
+      auth: session.accessToken,
+    });
+
     try {
-      const userResponse = await octokit.users.getAuthenticated();
-      console.log('Create route - GitHub user verification:', {
-        username: userResponse.data.login,
-        tokenValid: true,
-      });
+      // Test the token by making a simple API call
+      await octokit.users.getAuthenticated();
     } catch (error) {
-      console.error('Create route - GitHub token validation failed:', error);
+      console.error('❌ GitHub token validation failed:', error);
       return NextResponse.json(
         { error: 'Invalid GitHub token. Please sign in again.' },
         { status: 401 }
       );
     }
 
-    const repo = await createPortfolioRepo(octokit, data);
-    console.log('Create route - Repository created:', { url: repo });
+    console.log('✅ GitHub token validated successfully');
 
-    return NextResponse.json({ url: repo });
+    const repoUrl = await createPortfolioRepo(octokit, data);
+    console.log('✅ Portfolio repository created:', repoUrl);
+
+    return NextResponse.json({ url: repoUrl });
   } catch (error) {
-    console.error('Create route - Error creating portfolio:', error);
+    console.error('❌ Error creating portfolio:', error);
     return NextResponse.json(
       { error: 'Failed to create portfolio' },
       { status: 500 }
