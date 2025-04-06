@@ -206,6 +206,8 @@ function generatePortfolioPage(data: PortfolioData) {
             color: ${textColor};
             font-size: 1.2em;
             opacity: 0.9;
+            white-space: pre-wrap;
+            text-align: left;
         }
         .projects {
             margin-top: 40px;
@@ -282,6 +284,7 @@ function generatePortfolioPage(data: PortfolioData) {
         }
         .experience-item .description {
             margin-top: 10px;
+            white-space: pre-wrap;
         }
     </style>
 </head>
@@ -332,4 +335,4 @@ function generatePortfolioPage(data: PortfolioData) {
 </body>
 </html>
   `;
-} 
+}
