@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from '@/components/Providers';
 import { AuthProvider } from '@/components/AuthProvider';
+import Navbar from '@/components/Navbar';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -43,7 +44,10 @@ export default function RootLayout({
     <html lang="en" className="bg-gradient-to-br from-gray-900 via-gray-800 to-indigo-900">
       <body className={inter.className}>
         <AuthProvider>
-          <Providers>{children}</Providers>
+          <Providers>
+            <Navbar />
+            <div className="mt-20">{children}</div>
+          </Providers>
         </AuthProvider>
       </body>
     </html>
