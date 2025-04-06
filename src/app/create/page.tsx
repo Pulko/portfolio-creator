@@ -193,6 +193,11 @@ export default function CreatePortfolio() {
       return;
     }
 
+    // Truncate description to 350 characters for GitHub repository
+    const truncatedDescription = formData.description.length > 350 
+      ? formData.description.substring(0, 347) + '...'
+      : formData.description;
+
     setIsSubmitting(true);
 
     try {
@@ -200,7 +205,7 @@ export default function CreatePortfolio() {
       const sanitizedData = {
         ...formData,
         name: sanitizeInput(formData.name),
-        description: sanitizeInput(formData.description),
+        description: sanitizeInput(truncatedDescription), // Use truncated description
         projects: formData.projects.map(project => ({
           name: sanitizeInput(project.name),
           description: sanitizeInput(project.description),
