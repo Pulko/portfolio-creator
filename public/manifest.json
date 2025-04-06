@@ -1,0 +1,16 @@
+{
+  "name": "Portfolio Creator",
+  "short_name": "Portfolio Creator",
+  "description": "Create a beautiful, customizable portfolio website that showcases your projects, experience, and skills.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a1a1a",
+  "theme_color": "#8b5cf6",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "32x32",
+      "type": "image/svg+xml"
+    }
+  ]
+} 
