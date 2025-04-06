@@ -29,13 +29,19 @@ export default function CreatePortfolio() {
   const { data: session, status } = useSession();
   const [formData, setFormData] = useState({
     name: '',
-    bio: '',
-    location: '',
-    website: '',
-    twitter: '',
-    github: '',
-    linkedin: '',
-    projects: [{ name: '', description: '', url: '' }],
+    description: '',
+    projects: [{
+      name: '',
+      description: '',
+      technologies: [''],
+      githubUrl: '',
+      liveUrl: ''
+    }],
+    socialLinks: {
+      github: '',
+      linkedin: '',
+      twitter: ''
+    }
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deployUrl, setDeployUrl] = useState<string | null>(null);
@@ -56,22 +62,22 @@ export default function CreatePortfolio() {
   const validateUrls = () => {
     const errors: Record<string, string> = {};
     
-    if (formData.website && !isValidUrl(formData.website)) {
-      errors.website = 'Please enter a valid website URL';
-    }
-    if (formData.twitter && !isValidUrl(formData.twitter)) {
-      errors.twitter = 'Please enter a valid Twitter URL';
-    }
-    if (formData.github && !isValidUrl(formData.github)) {
+    if (formData.socialLinks.github && !isValidUrl(formData.socialLinks.github)) {
       errors.github = 'Please enter a valid GitHub URL';
     }
-    if (formData.linkedin && !isValidUrl(formData.linkedin)) {
+    if (formData.socialLinks.linkedin && !isValidUrl(formData.socialLinks.linkedin)) {
       errors.linkedin = 'Please enter a valid LinkedIn URL';
+    }
+    if (formData.socialLinks.twitter && !isValidUrl(formData.socialLinks.twitter)) {
+      errors.twitter = 'Please enter a valid Twitter URL';
     }
 
     formData.projects.forEach((project, index) => {
-      if (project.url && !isValidUrl(project.url)) {
-        errors[`project-${index}-url`] = 'Please enter a valid project URL';
+      if (project.githubUrl && !isValidUrl(project.githubUrl)) {
+        errors[`project-${index}-githubUrl`] = 'Please enter a valid GitHub URL';
+      }
+      if (project.liveUrl && !isValidUrl(project.liveUrl)) {
+        errors[`project-${index}-liveUrl`] = 'Please enter a valid Live URL';
       }
     });
 
@@ -126,17 +132,19 @@ export default function CreatePortfolio() {
       const sanitizedData = {
         ...formData,
         name: sanitizeInput(formData.name),
-        bio: sanitizeInput(formData.bio),
-        location: sanitizeInput(formData.location),
-        website: sanitizeInput(formData.website),
-        twitter: sanitizeInput(formData.twitter),
-        github: sanitizeInput(formData.github),
-        linkedin: sanitizeInput(formData.linkedin),
+        description: sanitizeInput(formData.description),
         projects: formData.projects.map(project => ({
           name: sanitizeInput(project.name),
           description: sanitizeInput(project.description),
-          url: sanitizeInput(project.url),
+          technologies: project.technologies.map(tech => sanitizeInput(tech)),
+          githubUrl: sanitizeInput(project.githubUrl),
+          liveUrl: sanitizeInput(project.liveUrl),
         })),
+        socialLinks: {
+          github: sanitizeInput(formData.socialLinks.github),
+          linkedin: sanitizeInput(formData.socialLinks.linkedin),
+          twitter: sanitizeInput(formData.socialLinks.twitter),
+        },
       };
 
       const response = await fetch('/api/create', {
@@ -164,7 +172,13 @@ export default function CreatePortfolio() {
   const addProject = () => {
     setFormData(prev => ({
       ...prev,
-      projects: [...prev.projects, { name: '', description: '', url: '' }],
+      projects: [...prev.projects, {
+        name: '',
+        description: '',
+        technologies: [''],
+        githubUrl: '',
+        liveUrl: ''
+      }],
     }));
   };
 
@@ -175,7 +189,7 @@ export default function CreatePortfolio() {
     }));
   };
 
-  const updateProject = (index: number, field: string, value: string) => {
+  const updateProject = (index: number, field: string, value: string | string[]) => {
     setFormData(prev => ({
       ...prev,
       projects: prev.projects.map((project, i) =>
@@ -184,8 +198,53 @@ export default function CreatePortfolio() {
     }));
   };
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  const addTechnology = (projectIndex: number) => {
+    setFormData(prev => ({
+      ...prev,
+      projects: prev.projects.map((project, i) =>
+        i === projectIndex
+          ? { ...project, technologies: [...project.technologies, ''] }
+          : project
+      ),
+    }));
+  };
+
+  const removeTechnology = (projectIndex: number, techIndex: number) => {
+    setFormData(prev => ({
+      ...prev,
+      projects: prev.projects.map((project, i) =>
+        i === projectIndex
+          ? {
+              ...project,
+              technologies: project.technologies.filter((_, j) => j !== techIndex),
+            }
+          : project
+      ),
+    }));
+  };
+
+  const updateTechnology = (projectIndex: number, techIndex: number, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      projects: prev.projects.map((project, i) =>
+        i === projectIndex
+          ? {
+              ...project,
+              technologies: project.technologies.map((tech, j) =>
+                j === techIndex ? value : tech
+              ),
+            }
+          : project
+      ),
+    }));
+  };
+
+  const handleInputChange = (field: string, value: string | { [key: string]: string }) => {
+    if (typeof value === 'string') {
+      setFormData(prev => ({ ...prev, [field]: value }));
+    } else {
+      setFormData(prev => ({ ...prev, [field]: value }));
+    }
   };
 
   return (
@@ -241,85 +300,14 @@ export default function CreatePortfolio() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-300">Bio</label>
+                  <label className="block text-sm font-medium text-gray-300">Description</label>
                   <textarea
-                    value={formData.bio}
-                    onChange={(e) => handleInputChange('bio', e.target.value)}
+                    value={formData.description}
+                    onChange={(e) => handleInputChange('description', e.target.value)}
                     rows={3}
                     className="mt-1 block w-full rounded-xl bg-white/5 border border-white/10 text-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
                     required
                   />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300">Location</label>
-                  <input
-                    type="text"
-                    value={formData.location}
-                    onChange={(e) => handleInputChange('location', e.target.value)}
-                    className="mt-1 block w-full rounded-xl bg-white/5 border border-white/10 text-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="backdrop-blur-md bg-white/5 p-6 rounded-3xl shadow-lg border border-white/10">
-              <h2 className="text-xl font-semibold mb-4 text-white">Social Links</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300">Website</label>
-                  <input
-                    type="url"
-                    value={formData.website}
-                    onChange={(e) => handleInputChange('website', e.target.value)}
-                    className={`mt-1 block w-full rounded-xl bg-white/5 border ${
-                      validationErrors.website ? 'border-red-500/50' : 'border-white/10'
-                    } text-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500/50`}
-                  />
-                  {validationErrors.website && (
-                    <p className="mt-1 text-sm text-red-400">{validationErrors.website}</p>
-                  )}
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300">Twitter</label>
-                  <input
-                    type="text"
-                    value={formData.twitter}
-                    onChange={(e) => handleInputChange('twitter', e.target.value)}
-                    className={`mt-1 block w-full rounded-xl bg-white/5 border ${
-                      validationErrors.twitter ? 'border-red-500/50' : 'border-white/10'
-                    } text-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500/50`}
-                  />
-                  {validationErrors.twitter && (
-                    <p className="mt-1 text-sm text-red-400">{validationErrors.twitter}</p>
-                  )}
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300">GitHub</label>
-                  <input
-                    type="text"
-                    value={formData.github}
-                    onChange={(e) => handleInputChange('github', e.target.value)}
-                    className={`mt-1 block w-full rounded-xl bg-white/5 border ${
-                      validationErrors.github ? 'border-red-500/50' : 'border-white/10'
-                    } text-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500/50`}
-                  />
-                  {validationErrors.github && (
-                    <p className="mt-1 text-sm text-red-400">{validationErrors.github}</p>
-                  )}
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300">LinkedIn</label>
-                  <input
-                    type="text"
-                    value={formData.linkedin}
-                    onChange={(e) => handleInputChange('linkedin', e.target.value)}
-                    className={`mt-1 block w-full rounded-xl bg-white/5 border ${
-                      validationErrors.linkedin ? 'border-red-500/50' : 'border-white/10'
-                    } text-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500/50`}
-                  />
-                  {validationErrors.linkedin && (
-                    <p className="mt-1 text-sm text-red-400">{validationErrors.linkedin}</p>
-                  )}
                 </div>
               </div>
             </div>
@@ -347,9 +335,7 @@ export default function CreatePortfolio() {
                         ×
                       </button>
                     )}
-                    <div className={`backdrop-blur-md bg-white/5 p-6 rounded-3xl shadow-lg border border-white/10 ${
-                      formData.projects.length > 1 && index < formData.projects.length - 1 ? 'mb-8 border-b border-white/10' : ''
-                    }`}>
+                    <div className="backdrop-blur-md bg-white/5 p-6 rounded-3xl shadow-lg border border-white/10">
                       <div className="space-y-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-300">Project Name</label>
@@ -372,24 +358,92 @@ export default function CreatePortfolio() {
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-300">URL</label>
+                          <label className="block text-sm font-medium text-gray-300">Technologies</label>
+                          <div className="space-y-2">
+                            {project.technologies.map((tech, techIndex) => (
+                              <div key={techIndex} className="flex gap-2">
+                                <input
+                                  type="text"
+                                  value={tech}
+                                  onChange={(e) => updateTechnology(index, techIndex, e.target.value)}
+                                  className="flex-1 rounded-xl bg-white/5 border border-white/10 text-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                                  required
+                                />
+                                {project.technologies.length > 1 && (
+                                  <button
+                                    type="button"
+                                    onClick={() => removeTechnology(index, techIndex)}
+                                    className="px-3 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-xl transition-colors"
+                                  >
+                                    Remove
+                                  </button>
+                                )}
+                              </div>
+                            ))}
+                            <button
+                              type="button"
+                              onClick={() => addTechnology(index)}
+                              className="px-4 py-2 bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 rounded-xl transition-colors"
+                            >
+                              Add Technology
+                            </button>
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-300">GitHub URL</label>
                           <input
                             type="url"
-                            value={project.url}
-                            onChange={(e) => updateProject(index, 'url', e.target.value)}
-                            className={`mt-1 block w-full rounded-xl bg-white/5 border ${
-                              validationErrors[`project-${index}-url`] ? 'border-red-500/50' : 'border-white/10'
-                            } text-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500/50`}
-                            required
+                            value={project.githubUrl}
+                            onChange={(e) => updateProject(index, 'githubUrl', e.target.value)}
+                            className="mt-1 block w-full rounded-xl bg-white/5 border border-white/10 text-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
                           />
-                          {validationErrors[`project-${index}-url`] && (
-                            <p className="mt-1 text-sm text-red-400">{validationErrors[`project-${index}-url`]}</p>
-                          )}
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-300">Live URL</label>
+                          <input
+                            type="url"
+                            value={project.liveUrl}
+                            onChange={(e) => updateProject(index, 'liveUrl', e.target.value)}
+                            className="mt-1 block w-full rounded-xl bg-white/5 border border-white/10 text-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                          />
                         </div>
                       </div>
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+
+            <div className="backdrop-blur-md bg-white/5 p-6 rounded-3xl shadow-lg border border-white/10">
+              <h2 className="text-xl font-semibold mb-4 text-white">Social Links</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300">GitHub</label>
+                  <input
+                    type="url"
+                    value={formData.socialLinks.github}
+                    onChange={(e) => handleInputChange('socialLinks', { ...formData.socialLinks, github: e.target.value })}
+                    className="mt-1 block w-full rounded-xl bg-white/5 border border-white/10 text-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300">LinkedIn</label>
+                  <input
+                    type="url"
+                    value={formData.socialLinks.linkedin}
+                    onChange={(e) => handleInputChange('socialLinks', { ...formData.socialLinks, linkedin: e.target.value })}
+                    className="mt-1 block w-full rounded-xl bg-white/5 border border-white/10 text-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300">Twitter</label>
+                  <input
+                    type="url"
+                    value={formData.socialLinks.twitter}
+                    onChange={(e) => handleInputChange('socialLinks', { ...formData.socialLinks, twitter: e.target.value })}
+                    className="mt-1 block w-full rounded-xl bg-white/5 border border-white/10 text-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                  />
+                </div>
               </div>
             </div>
 
