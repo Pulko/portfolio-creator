@@ -241,8 +241,8 @@ export default function CreatePortfolio() {
       }
 
       setGithubRepoUrl(data.url);
-      // Generate Vercel deploy URL using import flow
-      const vercelDeployUrl = `https://vercel.com/new/import?repository-url=${encodeURIComponent(data.url)}`;
+      // Generate Vercel deploy URL with GitHub integration parameters
+      const vercelDeployUrl = `https://vercel.com/new/git/external?repository-url=${encodeURIComponent(data.url)}&integration-required=true`;
       setDeployUrl(vercelDeployUrl);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
@@ -398,7 +398,7 @@ export default function CreatePortfolio() {
                   View on GitHub
                 </a>
                 <a
-                  href={githubRepoUrl ? `https://vercel.com/new/import?repository-url=${encodeURIComponent(githubRepoUrl)}` : '#'}
+                  href={githubRepoUrl ? `https://vercel.com/new/git/external?repository-url=${encodeURIComponent(githubRepoUrl)}&integration-required=true` : '#'}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
