@@ -31,15 +31,38 @@ export async function getAuthenticatedOctokit(req: NextApiRequest) {
 
 export async function createPortfolioRepo(octokit: Octokit, data: PortfolioData) {
   try {
+    // Validate required data
+    if (!data.name || !data.description) {
+      throw new Error('Name and description are required');
+    }
+
+    if (!Array.isArray(data.projects) || data.projects.length === 0) {
+      throw new Error('At least one project is required');
+    }
+
+    // Validate each project
+    data.projects.forEach((project, index) => {
+      if (!project.name || !project.description) {
+        throw new Error(`Project ${index + 1} is missing name or description`);
+      }
+      if (!Array.isArray(project.technologies)) {
+        throw new Error(`Project ${index + 1} technologies must be an array`);
+      }
+    });
+
+    // Generate a unique repository name with timestamp
+    const timestamp = new Date().getTime();
+    const baseName = `${data.name.toLowerCase().replace(/\s+/g, '-')}-portfolio`;
+    const repoName = `${baseName}-${timestamp}`;
+
     // Create the repository
     const repo = await octokit.repos.createForAuthenticatedUser({
-      name: `${data.name.toLowerCase().replace(/\s+/g, '-')}-portfolio`,
+      name: repoName,
       description: data.description,
       private: false,
       auto_init: true, // This will create an initial commit with a README
     });
 
-    const repoName = repo.data.name;
     const owner = repo.data.owner.login;
 
     // Get the initial README content to get its SHA
