@@ -195,7 +195,7 @@ export default function CreatePortfolio() {
 
     // Truncate description to 350 characters for GitHub repository
     const truncatedDescription = formData.description.length > 350 
-      ? formData.description.substring(0, 347) + '...'
+      ? formData.description.substring(0, 346) + '...'
       : formData.description;
 
     setIsSubmitting(true);
