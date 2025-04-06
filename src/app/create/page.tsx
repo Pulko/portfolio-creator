@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useSession, signIn } from 'next-auth/react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 // URL validation function
 const isValidUrl = (url: string): boolean => {
@@ -235,8 +236,8 @@ export default function CreatePortfolio() {
       }
 
       setGithubRepoUrl(data.url);
-      // Generate Vercel deploy URL
-      const vercelDeployUrl = `https://vercel.com/new/clone?repository-url=${encodeURIComponent(data.url)}`;
+      // Generate Vercel deploy URL using import flow
+      const vercelDeployUrl = `https://vercel.com/new/import?repository-url=${encodeURIComponent(data.url)}`;
       setDeployUrl(vercelDeployUrl);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
@@ -374,24 +375,6 @@ export default function CreatePortfolio() {
             <h2 className="text-2xl font-semibold mb-4 text-white">Portfolio Created Successfully! 🎉</h2>
             <p className="mb-4 text-gray-300">Your portfolio has been created and is ready to be deployed.</p>
             <div className="space-y-4">
-              <div className="flex flex-col sm:flex-row gap-4">
-                <a
-                  href={githubRepoUrl || '#'}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1 bg-gray-800 hover:bg-gray-700 text-white font-semibold px-6 py-3 rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg"
-                >
-                  View on GitHub
-                </a>
-                <a
-                  href={deployUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1 bg-black hover:bg-gray-900 text-white font-semibold px-6 py-3 rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg"
-                >
-                  Deploy on Vercel
-                </a>
-              </div>
               <div className="mt-4 space-y-2">
                 <p className="text-gray-400 text-sm">
                   Your portfolio repository has been created on GitHub. Click &quot;Deploy on Vercel&quot; to make it live!
@@ -399,6 +382,29 @@ export default function CreatePortfolio() {
                 <p className="text-gray-400 text-sm">
                   Want to make changes? You can edit your portfolio by updating the repository on GitHub.
                 </p>
+              </div>
+              <div className="mt-6 flex justify-center gap-4">
+                <a
+                  href={githubRepoUrl || '#'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2 bg-white/10 text-white rounded-xl hover:bg-white/20 transition-all duration-200"
+                >
+                  View on GitHub
+                </a>
+                <a
+                  href={githubRepoUrl ? `https://vercel.com/new/import?repository-url=${encodeURIComponent(githubRepoUrl)}` : '#'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Image
+                    src="https://vercel.com/button"
+                    alt="Deploy with Vercel"
+                    width={120}
+                    height={32}
+                    unoptimized
+                  />
+                </a>
               </div>
             </div>
           </div>
